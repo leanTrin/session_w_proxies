@@ -1,31 +1,14 @@
 import requests
 from bs4 import BeautifulSoup
 
-def get_proxies(
-        proxy_type='https',
-        https_file='https_proxies.txt',
-        http_file='http_proxies.txt'):
-
-    if proxy_type=='https':
-        with open(https_file, 'r') as f:
-            for proxy in f:
-                ip, port = proxy.strip().split('\t')
-                yield f'{ip}:{port}'
-    if proxy_type=='http':
-        with open(http_file, 'r') as f:
-            for proxy in f:
-                ip, port = proxy.strip().split('\t')
-                yield f'{ip}:{port}'
-    else:
-        raise Exception('Incorect Type.')
 
 class Session(requests.Session):
 
     def __init__(self):
         super().__init__()
-        self.https_proxies = get_proxies(proxy_type='https')
-        self.http_proxies = get_proxies(proxy_type='http')
-        self.casual_head = {
+        self.https_proxies = self.__class__.get_proxies(proxy_type='https')
+        self.http_proxies = self.__class__.get_proxies(proxy_type='http')
+        self.casual_head = { #TODO: Add a header randomiser
             'Accept': '*/*', 
             'Connection': 'keep-alive', 
             'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) \
@@ -34,7 +17,37 @@ class Session(requests.Session):
         }
         self.proxies = self.get_new_proxies()
 
+    @staticmethod
+    def get_proxies(
+            proxy_type='https',
+            https_file='https_proxies.txt',
+            http_file='http_proxies.txt'):
+        r"""Get a proxy from a file depending on the type
+
+        :param proxy_type: The type of proxy (http, https)
+        :param https_file: The file path of the https proxy file
+        :param http_file:  The file path of the http proxy file
+        :rtype: generator containing the proxy
+        """
+        if proxy_type=='https':
+            with open(https_file, 'r') as f:
+                for proxy in f:
+                    ip, port = proxy.strip().split('\t')
+                    yield f'{ip}:{port}'
+        if proxy_type=='http':
+            with open(http_file, 'r') as f:
+                for proxy in f:
+                    ip, port = proxy.strip().split('\t')
+                    yield f'{ip}:{port}'
+        else:
+            raise Exception('Incorect Type.')
+
     def get_new_proxies(self):
+        r"""Creates a new proxy dictionary from the
+        generators
+
+        :rtype dict containing https and http proxy
+        """
         prox = {
             'https': next(self.https_proxies),
             'http': next(self.http_proxies)
@@ -50,8 +63,8 @@ class Session(requests.Session):
         :rtype: requests.Response
         """
 
-        headers = kwargs['headers'] if 'headers' in kwargs else self.casual_head
-        proxies = kwargs['proxies'] if 'proxies' in kwargs else self.proxies
+        headers = kwargs.pop('headers', None) or self.casual_head
+        proxies = kwargs.pop('proxies', None) or self.proxies
 
         return super().get(
             url=url,
@@ -62,6 +75,9 @@ class Session(requests.Session):
 
 
 def test():
+    """ Checks if the proxies are working by going to a website
+    and checking what ip i have.
+    """
     def get_ipv4(soup):
         elem = soup.find('div', {'id': 'ipv4'})
         return elem.text.strip()
@@ -77,7 +93,7 @@ def test():
         ipv4 = get_ipv4(soup)
         ipv6 = get_ipv6(soup)
 
-        print('Testing Proxies:')
+        print('\nTesting Proxies:')
         print(s.proxies)
         print(f'ipv4: {ipv4}')
         print(f'ipv6: {ipv6}')
