@@ -8,7 +8,7 @@ class Session(requests.Session):
         super().__init__()
         self.https_proxies = self.__class__.get_proxies(proxy_type='https')
         self.http_proxies = self.__class__.get_proxies(proxy_type='http')
-        self.casual_head = { #TODO: Add a header randomiser
+        self.sample_header= { #TODO: Add a header randomiser
             'Accept': '*/*',
             'Connection': 'keep-alive',
             'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) \
@@ -63,7 +63,7 @@ class Session(requests.Session):
         :rtype: requests.Response
         """
 
-        headers = kwargs.pop('headers', None) or self.casual_head
+        headers = kwargs.pop('headers', None) or self.sample_header
         proxies = kwargs.pop('proxies', None) or self.proxies
 
         return super().get(
