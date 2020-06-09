@@ -53,7 +53,6 @@ class Session(requests.Session):
             'http': next(self.http_proxies)
         }
         self.proxies = prox
-        return prox
 
     def get(self, url,**kwargs):
         r"""Sends a GET request. Returns :class:`Response` object.
