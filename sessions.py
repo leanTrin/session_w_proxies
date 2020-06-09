@@ -9,8 +9,8 @@ class Session(requests.Session):
         self.https_proxies = self.__class__.get_proxies(proxy_type='https')
         self.http_proxies = self.__class__.get_proxies(proxy_type='http')
         self.casual_head = { #TODO: Add a header randomiser
-            'Accept': '*/*', 
-            'Connection': 'keep-alive', 
+            'Accept': '*/*',
+            'Connection': 'keep-alive',
             'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) \
                     AppleWebKit/537.36 (KHTML, like Gecko) \
                     Chrome/68.0.3440.106 Safari/537.36'
@@ -100,3 +100,10 @@ def test():
 
 if __name__ == "__main__":
     test()
+
+
+
+
+
+
+
