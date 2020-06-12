@@ -8,3 +8,6 @@ and use them in the session
 - Fixed the Session class by moving '''get_proxies''' to the class as a
 static method
 
+## TODO
+- want to add proxy support for post
+
